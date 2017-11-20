@@ -25,10 +25,16 @@ for line in lines[1:]:
     #current_path = './my_training_data/IMG/' + filename
     current_path = './data/IMG/' + filename
     image = cv2.imread(current_path)
-    #image = image[65:,:]
     images.append(image)
     measurement = float(line[3])
     measurements.append(measurement)
+    
+    #data augmentation - flip image and measurement
+    image_flipped = np.fliplr(image)
+    images.append(image_flipped)
+    measurement_flipped = -measurement
+    measurements.append(measurement_flipped)
+    
 
 print('The file name is: ', filename)
 X_train = np.array(images)
