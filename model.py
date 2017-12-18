@@ -2,55 +2,104 @@ import csv
 import cv2
 import numpy as np
 import ntpath
-from keras.models import Sequential
-from keras.layers import Flatten, Dense, Lambda, Cropping2D
+from keras.models import Sequential, Model
+from keras.layers import Flatten, Dense, Lambda, Cropping2D,Convolution2D, merge, Input
 
 
 def path_leaf(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
-lines = []
-#with open('./my_training_data/driving_log.csv') as csvfile:
-with open('./data/driving_log.csv') as csvfile:
-    reader = csv.reader(csvfile)
-    for line in reader:
-        lines.append(line)
+def import_data(csv_file, image_folder, images, mesurements):
+    with open(csv_file) as csvfile:
+        reader = csv.reader(csvfile)
+        lines = []
+        for line in reader:
+            lines.append(line)
         
+    for line in lines[1:]:
+        source_path = line[0]
+        filename = path_leaf(source_path)
+        #current_path = './my_training_data/IMG/' + filename
+        current_path = image_folder + filename
+        image = cv2.imread(current_path)
+        images.append(image)
+        measurement = float(line[3])
+        measurements.append(measurement)
+
+
 images = []
 measurements = []
-for line in lines[1:]:
-    source_path = line[0]
-    filename = path_leaf(source_path)
-    #current_path = './my_training_data/IMG/' + filename
-    current_path = './data/IMG/' + filename
-    image = cv2.imread(current_path)
-    images.append(image)
-    measurement = float(line[3])
-    measurements.append(measurement)
-    
-    #data augmentation - flip image and measurement
-    image_flipped = np.fliplr(image)
+import_data('../data_simulator/driving_log_good_driving_1.csv',
+            '../data_simulator/IMG_good_driving_1/',
+            images, measurements)
+import_data('../data_simulator/driving_log_trajectory_rectification_1.csv',
+            '../data_simulator/IMG_trajectory_rectification_1/',
+            images, measurements)
+import_data('../data_simulator/driving_log_trajectory_rectification_2.csv',
+            '../data_simulator/IMG_trajectory_rectification_2/',
+            images, measurements)
+
+
+
+print('The size of mesurements is: ', len(measurements))
+#data augmentation - flip image and measurement
+for i in range(0,len(images)):
+    image_flipped = np.fliplr(images[i][:][:])
     images.append(image_flipped)
-    measurement_flipped = -measurement
+    measurement_flipped = -measurements[i]
     measurements.append(measurement_flipped)
     
 
-print('The file name is: ', filename)
+#print('The file name is: ', current_path)
 X_train = np.array(images)
 y_train = np.array(measurements)
 
 print('Total number of training images: ', X_train.shape)
-print('The size of an image is: ', image.shape)
 
-model = Sequential()
-model.add(Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3)))
-model.add(Lambda(lambda x: x / 255.0 -0.5))
-model.add(Flatten(input_shape=(95,320,3)))
-model.add(Dense(1))
+def Normalisation(img):
+    out = img / 255.0 -0.5
+    return out
 
-model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=1)
+def My_module(input_layer):
+    # 1x1 filter
+    conv_1x1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu')(input_layer)
+    # 3x3 filter
+    conv_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(input_layer)
+    # 5x5 filter after 1x1 filter
+    conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', activation='relu')(conv_1x1)
+    # 3x3 filter after 1x1 filter
+    conv1_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
+    
+    output_layer = merge([conv_1x1,conv_3x3,conv1_3x3,conv1_5x5], mode='concat', concat_axis=1)
+    return output_layer
+
+def My_net():
+    input_img = Input(shape=(160,320,3))
+    crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
+    norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
+    module1_img = My_module(norm_img)
+    flatten =  Flatten(input_shape=(95,320,3))(module1_img)
+    #tensor.shape.eval()
+    out_put = Dense(1)(flatten)
+    
+    model=Model(input=input_img,output=out_put)
+    model.compile(loss='mse', optimizer='adam')
+    return model
+    
+                      
+#model = Sequential()
+#model.add(Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3)))
+#model.add(Lambda(lambda x: x / 255.0 -0.5))
+#model.add(My_module())
+#model.add(Flatten(input_shape=(95,320,3)))
+#model.add(Dense(1))
+model = My_net()
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
+#model.compile(loss='mse', optimizer='adam')
+#model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
+
+model.summary()
 
 model.save('model.h5')
 
