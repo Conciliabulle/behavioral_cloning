@@ -81,9 +81,9 @@ def My_net():
     module1 = My_module(norm_img)
     maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
     module2 = My_module(maxpool1)
-    maxpool2 = MaxPooling2D(pool_size=(2, 2))(module2)
+    maxpool2 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module2)
     module3 = My_module(maxpool2)
-    maxpool3 = MaxPooling2D(pool_size=(2, 2))(module3)
+    maxpool3 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module3)
         
     flatten =  Flatten()(maxpool3) #input_shape=(95,320,3)
     #tensor.shape.eval()
@@ -97,20 +97,23 @@ def My_net():
     return model
     
                       
+
+model = My_net()
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=1)
+
+model.summary()
+
+model.save('model.h5')
+
+
 #model = Sequential()
 #model.add(Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3)))
 #model.add(Lambda(lambda x: x / 255.0 -0.5))
 #model.add(My_module())
 #model.add(Flatten(input_shape=(95,320,3)))
 #model.add(Dense(1))
-model = My_net()
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=1)
 #model.compile(loss='mse', optimizer='adam')
 #model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
-
-model.summary()
-
-model.save('model.h5')
 
 
 
