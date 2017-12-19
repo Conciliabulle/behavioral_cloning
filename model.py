@@ -2,6 +2,7 @@ import csv
 import cv2
 import numpy as np
 import ntpath
+import random
 from keras.models import Sequential, Model
 from keras.layers import Flatten, Dense, Lambda, Cropping2D,Convolution2D, merge, Input, Dropout, MaxPooling2D
 
@@ -96,13 +97,20 @@ def My_net():
     maxpool4 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module4)
     module5 = My_module(maxpool4)
     maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
+    
+    module6 = My_module(maxpool5)
+    maxpool6 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module6)
+    
+    module7 = My_module(maxpool5)
+    maxpool7 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module7)
         
     flatten =  Flatten()(maxpool3) #input_shape=(95,320,3)
     #tensor.shape.eval()
 
 
-    drop = Dropout(0.5)(flatten)  
-    out_put = Dense(1)(flatten)
+    drop = Dropout(0.5)(flatten)
+    connected1 = Dense(1000)(flatten)
+    out_put = Dense(1)(connected1)
     
     model=Model(input=input_img,output=out_put)
     model.compile(loss='mse', optimizer='adam')
