@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import ntpath
 from keras.models import Sequential, Model
-from keras.layers import Flatten, Dense, Lambda, Cropping2D,Convolution2D, merge, Input
+from keras.layers import Flatten, Dense, Lambda, Cropping2D,Convolution2D, merge, Input, Dropout, MaxPooling2D
 
 
 def path_leaf(path):
@@ -78,9 +78,18 @@ def My_net():
     input_img = Input(shape=(160,320,3))
     crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
     norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
-    module1_img = My_module(norm_img)
-    flatten =  Flatten(input_shape=(95,320,3))(module1_img)
+    module1 = My_module(norm_img)
+    maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
+    module2 = My_module(maxpool1)
+    maxpool2 = MaxPooling2D(pool_size=(2, 2))(module2)
+    module3 = My_module(maxpool2)
+    maxpool3 = MaxPooling2D(pool_size=(2, 2))(module3)
+        
+    flatten =  Flatten()(maxpool3) #input_shape=(95,320,3)
     #tensor.shape.eval()
+
+
+    drop = Dropout(0.5)(flatten)  
     out_put = Dense(1)(flatten)
     
     model=Model(input=input_img,output=out_put)
@@ -95,7 +104,7 @@ def My_net():
 #model.add(Flatten(input_shape=(95,320,3)))
 #model.add(Dense(1))
 model = My_net()
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=1)
 #model.compile(loss='mse', optimizer='adam')
 #model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
 
