@@ -81,7 +81,7 @@ def My_net():
     module1 = My_module(norm_img)
     maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
     module2 = My_module(maxpool1)
-    maxpool2 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module2)
+    maxpool2 = MaxPooling2D(pool_size=(2, 2))(module2)#, strides = (2,2)
     module3 = My_module(maxpool2)
     maxpool3 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module3)
     module4 = My_module(maxpool3)
