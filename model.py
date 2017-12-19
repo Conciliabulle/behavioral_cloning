@@ -24,6 +24,7 @@ def import_data(csv_file, image_folder, images, mesurements):
         #current_path = './my_training_data/IMG/' + filename
         current_path = image_folder + filename
         image = cv2.imread(current_path)
+        image = cv2.cvtColor( image, cv2.COLOR_RGB2GRAY )
         images.append(image)
         measurement = float(line[3])
         measurements.append(measurement)
@@ -62,6 +63,8 @@ for i in range(0,len(images)):
 
 #print('The file name is: ', current_path)
 X_train = np.array(images)
+X_train = np.expand_dims(X_train, axis=4)
+print('x shape is:',X_train.shape)
 y_train = np.array(measurements)
 
 print('Total number of training images: ', X_train.shape)
@@ -76,17 +79,17 @@ def My_module(input_layer):
     # 3x3 filter
     conv_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(input_layer)
     # 5x5 filter after 1x1 filter
-    conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', strides = (2,2), activation='relu')(conv_1x1)
+    conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', activation='relu')(conv_1x1) #, strides = (2,2)
     # 3x3 filter after 1x1 filter
-    conv1_3x3 = Convolution2D(1, 3, 3, border_mode='same', strides = (2,2), activation='relu')(conv_1x1)
+    conv1_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
     
     output_layer = merge([conv_1x1,conv_3x3,conv1_3x3,conv1_5x5], mode='concat', concat_axis=1)
     return output_layer
 
 def My_net():
-    input_img = Input(shape=(160,320,3))
-    crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
-    norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
+    input_img = Input(shape=(160,320,1))
+    crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,1))(input_img)
+    norm_img = Lambda(Normalisation, output_shape=(95,320,1))(crop_img)
     module1 = My_module(norm_img)
     maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
     module2 = My_module(maxpool1)
