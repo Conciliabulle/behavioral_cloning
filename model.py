@@ -76,9 +76,9 @@ def My_module(input_layer):
     # 3x3 filter
     conv_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(input_layer)
     # 5x5 filter after 1x1 filter
-    conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', activation='relu')(conv_1x1)
+    conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', strides = (2,2), activation='relu')(conv_1x1)
     # 3x3 filter after 1x1 filter
-    conv1_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
+    conv1_3x3 = Convolution2D(1, 3, 3, border_mode='same', strides = (2,2), activation='relu')(conv_1x1)
     
     output_layer = merge([conv_1x1,conv_3x3,conv1_3x3,conv1_5x5], mode='concat', concat_axis=1)
     return output_layer
@@ -98,13 +98,13 @@ def My_net():
     module5 = My_module(maxpool4)
     maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
     
-    module6 = My_module(maxpool5)
-    maxpool6 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module6)
+    #module6 = My_module(maxpool5)
+    #maxpool6 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module6)
     
-    module7 = My_module(maxpool5)
-    maxpool7 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module7)
+   # module7 = My_module(maxpool5)
+    #maxpool7 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module7)
         
-    flatten =  Flatten()(maxpool3) #input_shape=(95,320,3)
+    flatten =  Flatten()(maxpool5) #input_shape=(95,320,3)
     #tensor.shape.eval()
 
 
