@@ -84,6 +84,10 @@ def My_net():
     maxpool2 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module2)
     module3 = My_module(maxpool2)
     maxpool3 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module3)
+    module4 = My_module(maxpool3)
+    maxpool4 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module4)
+    module5 = My_module(maxpool4)
+    maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
         
     flatten =  Flatten()(maxpool3) #input_shape=(95,320,3)
     #tensor.shape.eval()
