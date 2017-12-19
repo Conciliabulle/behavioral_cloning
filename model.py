@@ -33,11 +33,19 @@ measurements = []
 import_data('../data_simulator/driving_log_good_driving_1.csv',
             '../data_simulator/IMG_good_driving_1/',
             images, measurements)
+# artificially double the data of driving in the middle of the road
+images.append(images)
+measurements.append(measurements)
+
+
 import_data('../data_simulator/driving_log_trajectory_rectification_1.csv',
             '../data_simulator/IMG_trajectory_rectification_1/',
             images, measurements)
 import_data('../data_simulator/driving_log_trajectory_rectification_2.csv',
             '../data_simulator/IMG_trajectory_rectification_2/',
+            images, measurements)
+import_data('../data_simulator/driving_log_bridge_shadow.csv',
+            '../data_simulator/IMG__bridge_shadow/',
             images, measurements)
 
 
@@ -103,7 +111,7 @@ def My_net():
                       
 
 model = My_net()
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=1)
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=4)
 
 model.summary()
 
