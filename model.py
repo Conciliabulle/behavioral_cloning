@@ -49,6 +49,9 @@ import_data('../data_simulator/driving_log_trajectory_rectification_2.csv',
 import_data('../data_simulator/driving_log_bridge_shadow.csv',
             '../data_simulator/IMG_bridge_shadow/',
             images, measurements)
+import_data('../data_simulator/driving_log_bridge_turn.csv',
+            '../data_simulator/IMG_bridge_bridge_turn/',
+            images, measurements)
 
 
 
