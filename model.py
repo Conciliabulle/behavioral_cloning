@@ -24,7 +24,7 @@ def import_data(csv_file, image_folder, images, mesurements):
         #current_path = './my_training_data/IMG/' + filename
         current_path = image_folder + filename
         image = cv2.imread(current_path)
-        image = cv2.cvtColor( image, cv2.COLOR_RGB2GRAY )
+        #image = cv2.cvtColor( image, cv2.COLOR_RGB2GRAY )
         images.append(image)
         measurement = float(line[3])
         measurements.append(measurement)
@@ -36,8 +36,8 @@ import_data('../data_simulator/driving_log_good_driving_1.csv',
             '../data_simulator/IMG_good_driving_1/',
             images, measurements)
 # artificially double the data of driving in the middle of the road
-images.extend(images)
-measurements.extend(measurements)
+#images.extend(images)
+#measurements.extend(measurements)
 
 
 import_data('../data_simulator/driving_log_trajectory_rectification_1.csv',
@@ -63,8 +63,6 @@ for i in range(0,len(images)):
 
 #print('The file name is: ', current_path)
 X_train = np.array(images)
-X_train = np.expand_dims(X_train, axis=4)
-print('x shape is:',X_train.shape)
 y_train = np.array(measurements)
 
 print('Total number of training images: ', X_train.shape)
@@ -77,7 +75,7 @@ def My_module(input_layer):
     # 1x1 filter
     conv_1x1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu')(input_layer)
     # 3x3 filter
-    conv_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(input_layer)
+    conv_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(input_layer)#,subsample=(2,2)
     # 5x5 filter after 1x1 filter
     conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', activation='relu')(conv_1x1) #, strides = (2,2)
     # 3x3 filter after 1x1 filter
@@ -87,19 +85,22 @@ def My_module(input_layer):
     return output_layer
 
 def My_net():
-    input_img = Input(shape=(160,320,1))
-    crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,1))(input_img)
-    norm_img = Lambda(Normalisation, output_shape=(95,320,1))(crop_img)
-    module1 = My_module(norm_img)
+    input_img = Input(shape=(160,320,3))
+    crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
+    norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
+    # 1x1 filter
+    conv1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu', input_shape=(95,320,3))(norm_img)
+    
+    module1 = My_module(conv1)
     maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
     module2 = My_module(maxpool1)
     maxpool2 = MaxPooling2D(pool_size=(2, 2))(module2)#, strides = (2,2)
     module3 = My_module(maxpool2)
-    maxpool3 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module3)
-    module4 = My_module(maxpool3)
-    maxpool4 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module4)
-    module5 = My_module(maxpool4)
-    maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
+    maxpool3 = MaxPooling2D(pool_size=(2, 2))(module3)#, strides = (2,2)
+    #module4 = My_module(maxpool3)
+    #maxpool4 = MaxPooling2D(pool_size=(2, 2))(module4)
+    #module5 = My_module(maxpool4)
+    #maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
     
     #module6 = My_module(maxpool5)
     #maxpool6 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module6)
@@ -107,13 +108,13 @@ def My_net():
    # module7 = My_module(maxpool5)
     #maxpool7 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module7)
         
-    flatten =  Flatten()(maxpool5) #input_shape=(95,320,3)
+    flatten =  Flatten()(maxpool3) #input_shape=(95,320,3)
     #tensor.shape.eval()
 
 
     drop = Dropout(0.5)(flatten)
-    connected1 = Dense(1000)(flatten)
-    out_put = Dense(1)(connected1)
+    #connected1 = Dense(1000)(flatten)
+    out_put = Dense(1)(drop)
     
     model=Model(input=input_img,output=out_put)
     model.compile(loss='mse', optimizer='adam')
