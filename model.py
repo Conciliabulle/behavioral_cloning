@@ -25,6 +25,7 @@ def import_data(csv_file, image_folder, images, mesurements):
         #current_path = './my_training_data/IMG/' + filename
         current_path = image_folder + filename
         image = cv2.imread(current_path)
+        #image = cv2.resize(image, (0,0), fx=0.5, fy=0.5)
         #image = cv2.cvtColor( image, cv2.COLOR_RGB2GRAY )
         images.append(image)
         measurement = float(line[3])
@@ -39,7 +40,12 @@ import_data('../data_simulator/driving_log_good_driving_1.csv',
 # artificially double the data of driving in the middle of the road
 #images.extend(images)
 #measurements.extend(measurements)
-
+import_data('../data_simulator/driving_log_good_driving_mouse_1.csv',
+            '../data_simulator/IMG_good_driving_mouse_1/',
+            images, measurements)
+import_data('../data_simulator/driving_log_good_driving_mouse_2.csv',
+            '../data_simulator/IMG_good_driving_mouse_2/',
+            images, measurements)
 
 import_data('../data_simulator/driving_log_trajectory_rectification_1.csv',
             '../data_simulator/IMG_trajectory_rectification_1/',
@@ -52,6 +58,9 @@ import_data('../data_simulator/driving_log_bridge_shadow.csv',
             images, measurements)
 import_data('../data_simulator/driving_log_bridge_turn.csv',
             '../data_simulator/IMG_bridge_turn/',
+            images, measurements)
+import_data('../data_simulator/driving_log_bridge.csv',
+            '../data_simulator/IMG_bridge/',
             images, measurements)
 
 
@@ -92,9 +101,8 @@ def My_net():
     input_img = Input(shape=(160,320,3))
     crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
     norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
-    resised_img = Lambda(lambda image: ktf.image.resize_images(crop_img, (47, 160)))(norm_img)
     # 1x1 filter
-    conv1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu', input_shape=(47, 160,3))(resised_img)
+    conv1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu', input_shape=(95, 320,3))(norm_img)
     
     module1 = My_module(conv1)
     maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
