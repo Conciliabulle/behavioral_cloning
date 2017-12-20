@@ -12,6 +12,7 @@ def path_leaf(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
+# Import function for the data set
 def import_data(csv_file, image_folder, images, mesurements):
     with open(csv_file) as csvfile:
         reader = csv.reader(csvfile)
@@ -64,8 +65,6 @@ import_data('../data_simulator/driving_log_bridge.csv',
             images, measurements)
 
 
-
-print('The size of mesurements is: ', len(measurements))
 #data augmentation - flip image and measurement
 for i in range(0,len(images)):
     image_flipped = np.fliplr(images[i][:][:])
@@ -74,16 +73,16 @@ for i in range(0,len(images)):
     measurements.append(measurement_flipped)
     
 
-#print('The file name is: ', current_path)
 X_train = np.array(images)
 y_train = np.array(measurements)
-
 print('Total number of training images: ', X_train.shape)
 
+# Data normalisation function
 def Normalisation(img):
     out = img / 255.0 -0.5
     return out
 
+# My Inception modules used inside my network
 def My_module(input_layer):
     # 1x1 filter
     conv_1x1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu')(input_layer)
@@ -97,13 +96,15 @@ def My_module(input_layer):
     output_layer = merge([conv_1x1,conv_3x3,conv1_3x3,conv1_5x5], mode='concat', concat_axis=1)
     return output_layer
 
+# My full complete network
 def My_net():
     input_img = Input(shape=(160,320,3))
     crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
     norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
-    # 1x1 filter
+    # 1x1 convolutional filter in input
     conv1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu', input_shape=(95, 320,3))(norm_img)
-    
+
+    # serialisation of inception modules and max pooling functions
     module1 = My_module(conv1)
     maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
     module2 = My_module(maxpool1)
@@ -112,21 +113,17 @@ def My_net():
     maxpool3 = MaxPooling2D(pool_size=(4,4))(module3)#, strides = (2,2)
     module4 = My_module(maxpool3)
     maxpool4 = MaxPooling2D(pool_size=(2, 2))(module4)
+
     #module5 = My_module(maxpool4)
     #maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
-    
     #module6 = My_module(maxpool5)
     #maxpool6 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module6)
-    
-   # module7 = My_module(maxpool5)
+    #module7 = My_module(maxpool5)
     #maxpool7 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module7)
         
-    flatten =  Flatten()(maxpool4) #input_shape=(95,320,3)
-    #tensor.shape.eval()
-
-
+    flatten =  Flatten()(maxpool4)
     drop = Dropout(0.5)(flatten)
-    #connected1 = Dense(1000)(flatten)
+    #Final full connected layer
     out_put = Dense(1)(drop)
     
     model=Model(input=input_img,output=out_put)
@@ -137,20 +134,9 @@ def My_net():
 
 model = My_net()
 model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=2)
-
 model.summary()
-
 model.save('model.h5')
 
-
-#model = Sequential()
-#model.add(Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3)))
-#model.add(Lambda(lambda x: x / 255.0 -0.5))
-#model.add(My_module())
-#model.add(Flatten(input_shape=(95,320,3)))
-#model.add(Dense(1))
-#model.compile(loss='mse', optimizer='adam')
-#model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=3)
 
 
 
