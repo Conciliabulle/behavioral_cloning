@@ -79,15 +79,19 @@ def Normalisation(img):
 def My_module(input_layer):
     # 1x1 filters
     conv_1x1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu')(input_layer)
-    conv2_1x1 = Convolution2D(3, 1, 1, border_mode='same', activation='relu')(input_layer)
+    conv2_1x1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu')(input_layer)
+    conv3_1x1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu')(input_layer)
     # 3x3 filter
     conv_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(input_layer)#,subsample=(2,2)
     # 5x5 filter after 1x1 filter
     conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', activation='relu')(conv_1x1) #, strides = (2,2)
     # 3x3 filter after 1x1 filter
-    conv1_3x3 = Convolution2D(3, 3, 3, border_mode='same', activation='relu')(conv_1x1)
+    conv1_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
+    conv2_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
+    conv3_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
+    conv4_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
     
-    output_layer = merge([conv_1x1,conv2_1x1,conv_3x3,conv1_3x3,conv1_5x5], mode='concat', concat_axis=1)
+    output_layer = merge([conv_1x1,conv2_1x1,conv3_1x1,conv2_1x1,conv_3x3,conv1_3x3,conv2_3x3,conv3_3x3,conv4_3x3,conv1_5x5], mode='concat', concat_axis=1)
     return output_layer
 
 def My_net():
