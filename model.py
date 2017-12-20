@@ -49,9 +49,9 @@ import_data('../data_simulator/driving_log_trajectory_rectification_2.csv',
 import_data('../data_simulator/driving_log_bridge_shadow.csv',
             '../data_simulator/IMG_bridge_shadow/',
             images, measurements)
-#import_data('../data_simulator/driving_log_bridge_turn.csv',
-#            '../data_simulator/IMG_bridge_turn/',
-#            images, measurements)
+import_data('../data_simulator/driving_log_bridge_turn.csv',
+            '../data_simulator/IMG_bridge_turn/',
+            images, measurements)
 
 #import_data('../data_simulator/driving_log_bridge_recovery.csv',
 #	'../data_simulator/IMG_bridge_recovery/',
@@ -97,6 +97,7 @@ def My_module(input_layer):
 def My_net():
     input_img = Input(shape=(160,320,3))
     crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
+    out = Lambda(lambda image: ktf.image.resize_images(image, (128, 128)))(inp)
     norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
     # 1x1 filter
     conv1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu', input_shape=(95,320,3))(norm_img)
