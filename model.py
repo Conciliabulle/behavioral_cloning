@@ -77,16 +77,17 @@ def Normalisation(img):
     return out
 
 def My_module(input_layer):
-    # 1x1 filter
+    # 1x1 filters
     conv_1x1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu')(input_layer)
+    conv2_1x1 = Convolution2D(3, 1, 1, border_mode='same', activation='relu')(input_layer)
     # 3x3 filter
     conv_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(input_layer)#,subsample=(2,2)
     # 5x5 filter after 1x1 filter
     conv1_5x5 = Convolution2D(1, 5, 5, border_mode='same', activation='relu')(conv_1x1) #, strides = (2,2)
     # 3x3 filter after 1x1 filter
-    conv1_3x3 = Convolution2D(1, 3, 3, border_mode='same', activation='relu')(conv_1x1)
+    conv1_3x3 = Convolution2D(3, 3, 3, border_mode='same', activation='relu')(conv_1x1)
     
-    output_layer = merge([conv_1x1,conv_3x3,conv1_3x3,conv1_5x5], mode='concat', concat_axis=1)
+    output_layer = merge([conv_1x1,conv2_1x1,conv_3x3,conv1_3x3,conv1_5x5], mode='concat', concat_axis=1)
     return output_layer
 
 def My_net():
@@ -102,10 +103,10 @@ def My_net():
     maxpool2 = MaxPooling2D(pool_size=(2, 2))(module2)#, strides = (2,2)
     module3 = My_module(maxpool2)
     maxpool3 = MaxPooling2D(pool_size=(4,4))(module3)#, strides = (2,2)
-    module4 = My_module(maxpool3)
-    maxpool4 = MaxPooling2D(pool_size=(2, 2))(module4)
-    module5 = My_module(maxpool4)
-    maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
+    #module4 = My_module(maxpool3)
+    #maxpool4 = MaxPooling2D(pool_size=(2, 2))(module4)
+    #module5 = My_module(maxpool4)
+    #maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
     
     #module6 = My_module(maxpool5)
     #maxpool6 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module6)
@@ -113,7 +114,7 @@ def My_net():
    # module7 = My_module(maxpool5)
     #maxpool7 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module7)
         
-    flatten =  Flatten()(maxpool5) #input_shape=(95,320,3)
+    flatten =  Flatten()(maxpool3) #input_shape=(95,320,3)
     #tensor.shape.eval()
 
 
