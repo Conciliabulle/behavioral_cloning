@@ -49,11 +49,13 @@ import_data('../data_simulator/driving_log_trajectory_rectification_2.csv',
 import_data('../data_simulator/driving_log_bridge_shadow.csv',
             '../data_simulator/IMG_bridge_shadow/',
             images, measurements)
-import_data('../data_simulator/driving_log_bridge_turn.csv',
-            '../data_simulator/IMG_bridge_bridge_turn/',
-            images, measurements)
+#import_data('../data_simulator/driving_log_bridge_turn.csv',
+#            '../data_simulator/IMG_bridge_turn/',
+#            images, measurements)
 
-
+#import_data('../data_simulator/driving_log_bridge_recovery.csv',
+#	'../data_simulator/IMG_bridge_recovery/',
+#	images, measurements)
 
 print('The size of mesurements is: ', len(measurements))
 #data augmentation - flip image and measurement
@@ -102,8 +104,8 @@ def My_net():
     maxpool3 = MaxPooling2D(pool_size=(4,4))(module3)#, strides = (2,2)
     module4 = My_module(maxpool3)
     maxpool4 = MaxPooling2D(pool_size=(2, 2))(module4)
-    #module5 = My_module(maxpool4)
-    #maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
+    module5 = My_module(maxpool4)
+    maxpool5 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module5)
     
     #module6 = My_module(maxpool5)
     #maxpool6 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module6)
@@ -111,7 +113,7 @@ def My_net():
    # module7 = My_module(maxpool5)
     #maxpool7 = MaxPooling2D(pool_size=(2, 2), strides = (2,2))(module7)
         
-    flatten =  Flatten()(maxpool4) #input_shape=(95,320,3)
+    flatten =  Flatten()(maxpool5) #input_shape=(95,320,3)
     #tensor.shape.eval()
 
 
