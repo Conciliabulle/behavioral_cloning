@@ -5,6 +5,7 @@ import ntpath
 import random
 from keras.models import Sequential, Model
 from keras.layers import Flatten, Dense, Lambda, Cropping2D,Convolution2D, merge, Input, Dropout, MaxPooling2D
+from keras.backend import tf as ktf
 
 
 def path_leaf(path):
@@ -91,8 +92,9 @@ def My_net():
     input_img = Input(shape=(160,320,3))
     crop_img = Cropping2D(cropping=((65,0),(0,0)), input_shape=(160,320,3))(input_img)
     norm_img = Lambda(Normalisation, output_shape=(95,320,3))(crop_img)
+    resised_img = Lambda(lambda image: ktf.image.resize_images(crop_img, (47, 160)))(norm_img)
     # 1x1 filter
-    conv1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu', input_shape=(95,320,3))(norm_img)
+    conv1 = Convolution2D(1, 1, 1, border_mode='same', activation='relu', input_shape=(47, 160,3))(resised_img)
     
     module1 = My_module(conv1)
     maxpool1 = MaxPooling2D(pool_size=(2, 2))(module1)
