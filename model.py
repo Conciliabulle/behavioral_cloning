@@ -40,9 +40,9 @@ import_data('../data_simulator/driving_log_good_driving_1.csv',
 # artificially double the data of driving in the middle of the road
 #images.extend(images)
 #measurements.extend(measurements)
-import_data('../data_simulator/driving_log_good_driving_mouse_1.csv',
-            '../data_simulator/IMG_good_driving_mouse_1/',
-            images, measurements)
+#import_data('../data_simulator/driving_log_good_driving_mouse_1.csv',
+#            '../data_simulator/IMG_good_driving_mouse_1/',
+#            images, measurements)
 import_data('../data_simulator/driving_log_good_driving_mouse_2.csv',
             '../data_simulator/IMG_good_driving_mouse_2/',
             images, measurements)
